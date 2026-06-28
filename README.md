@@ -23,6 +23,35 @@ responsive layout.
 - **Health dashboard.** BMI, healthy weight range, estimated body fat, lean mass,
   BMR, TDEE, deficit/surplus, protein, water, steps and sleep.
 
+## AI Image Calorie Calculator
+
+A specialized AI nutrition assistant (not a generic classifier) that estimates
+calories & macros from a **food photo + short description + portion hint**:
+
+- Drag-drop / upload / **camera** capture, description chips, portion presets or
+  free-text ("250 g", "2 rotis").
+- Animated multi-step analysis → a large nutrition card (calories, protein,
+  carbs, fat, fiber, sugar, sodium, potassium) with a **confidence score**.
+- **Ingredient breakdown** with per-item calorie contribution, **live portion
+  slider** (everything rescales instantly), accuracy reasons, AI suggestions,
+  and **manual correction** (keeps both the AI estimate and your edit).
+- **Add to Today's Intake** → updates the macro dashboard immediately, with a
+  **compare-vs-targets** view and a searchable **History** of past meals.
+
+### Swappable AI providers
+
+Business logic lives in `src/lib/foodAnalysis/`, fully separated from the UI.
+Every provider implements one `FoodAnalysisProvider` contract, so vendors swap
+without touching components:
+
+- `HeuristicProvider` — the **offline default**: parses the description, matches
+  a multi-cuisine food knowledge base, applies prep modifiers (less oil, ghee,
+  restaurant…) and portion sizing. Works with **no API key**.
+- `RemoteVisionProvider` — drop-in adapters for **OpenAI / Gemini / Claude
+  Vision** (gated on an API key; the registry falls back to the heuristic).
+- The same seam is ready for USDA FoodData Central, OpenFoodFacts, Nutritionix
+  and Edamam.
+
 ## Tech stack
 
 React · TypeScript · Tailwind CSS · shadcn/ui-style Radix primitives ·
