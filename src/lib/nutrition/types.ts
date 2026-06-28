@@ -48,6 +48,9 @@ export type WeeklyTargetKg =
 /** The five tracked macro/energy quantities. */
 export type MacroKey = "calories" | "protein" | "fat" | "carbs" | "fiber";
 
+/** Which bodyweight basis protein grams are anchored to. */
+export type ProteinBasis = "bodyweight" | "lean-mass";
+
 /** The raw user inputs that drive the calculation engine. */
 export interface UserProfile {
   age: number; // years
@@ -60,6 +63,18 @@ export interface UserProfile {
   goal: GoalId;
   diet: DietId;
   weeklyTargetKg: WeeklyTargetKg;
+  /**
+   * Optional MEASURED body-fat percentage (from a smart scale, calipers, DEXA…).
+   * When provided, BMR switches to the more accurate Katch-McArdle formula and
+   * lean mass / body fat become exact instead of estimated.
+   */
+  bodyFatPercent?: number;
+  /**
+   * What protein grams are anchored to. "bodyweight" (default) uses target
+   * weight; "lean-mass" uses measured lean body mass and is only meaningful
+   * when bodyFatPercent is provided.
+   */
+  proteinBasis: ProteinBasis;
 }
 
 /** A fully resolved set of macro values (grams) plus energy (kcal). */
@@ -74,9 +89,13 @@ export interface MacroValues {
 /** Which macros are pinned by the user so the rebalancer must not move them. */
 export type MacroLocks = Record<MacroKey, boolean>;
 
+/** Which equation produced the BMR. */
+export type BmrFormula = "mifflin-st-jeor" | "katch-mcardle";
+
 /** Intermediate, fully-explained results from the energy engine. */
 export interface EnergyBreakdown {
-  bmr: number; // Mifflin-St Jeor
+  bmr: number;
+  bmrFormula: BmrFormula;
   tdee: number; // maintenance calories
   activityMultiplier: number;
   calorieDelta: number; // signed adjustment applied for the goal/weekly target
@@ -89,7 +108,8 @@ export interface MacroDerivation {
   proteinPerKg: number;
   fatPerKg: number;
   fiberPer1000: number;
-  proteinReferenceWeight: number; // target weight used
+  proteinBasis: ProteinBasis;
+  proteinReferenceWeight: number; // the weight (target or lean) protein was anchored to
 }
 
 /** The complete output of a single engine pass. */

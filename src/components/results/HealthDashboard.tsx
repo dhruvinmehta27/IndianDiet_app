@@ -63,7 +63,8 @@ export function HealthDashboard({ health }: HealthDashboardProps) {
           <AnimatedNumber value={health.bodyFatPercent} decimals={1} />%
         </>
       ),
-      detail: "estimated",
+      detail: health.bodyFatMeasured ? "measured" : "estimated",
+      tone: health.bodyFatMeasured ? "text-macro-fat" : undefined,
     },
     {
       icon: <Dumbbell className="h-4 w-4" />,

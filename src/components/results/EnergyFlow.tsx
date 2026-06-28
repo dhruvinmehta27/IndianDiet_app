@@ -10,7 +10,11 @@ interface EnergyFlowProps {
 /** Transparent BMR → TDEE → goal-calorie pipeline, so the math is never hidden. */
 export function EnergyFlow({ energy }: EnergyFlowProps) {
   const steps = [
-    { label: "BMR", value: energy.bmr, sub: "Mifflin-St Jeor" },
+    {
+      label: "BMR",
+      value: energy.bmr,
+      sub: energy.bmrFormula === "katch-mcardle" ? "Katch-McArdle" : "Mifflin-St Jeor",
+    },
     { label: "TDEE", value: energy.tdee, sub: `× ${energy.activityMultiplier} activity` },
     {
       label: "Goal",

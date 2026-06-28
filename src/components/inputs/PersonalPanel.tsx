@@ -1,7 +1,9 @@
-import { User, UserRound } from "lucide-react";
+import { AnimatePresence, motion } from "framer-motion";
+import { User, UserRound, Sparkles } from "lucide-react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Field } from "@/components/ui/field";
 import { Segmented } from "@/components/ui/segmented";
+import { Switch } from "@/components/ui/switch";
 import {
   Select,
   SelectContent,
@@ -11,10 +13,12 @@ import {
 } from "@/components/ui/select";
 import { LabeledSlider } from "./LabeledSlider";
 import {
+  DEFAULT_BODY_FAT,
   ETHNICITIES,
   INPUT_BOUNDS,
   type EthnicityId,
   type Gender,
+  type ProteinBasis,
   type UserProfile,
 } from "@/lib/nutrition";
 
@@ -25,6 +29,14 @@ interface PersonalPanelProps {
 
 export function PersonalPanel({ profile, update }: PersonalPanelProps) {
   const weightDelta = profile.targetWeightKg - profile.currentWeightKg;
+  const bodyFatOn = profile.bodyFatPercent != null;
+
+  const toggleBodyFat = (on: boolean) =>
+    update(
+      on
+        ? { bodyFatPercent: DEFAULT_BODY_FAT[profile.gender] }
+        : { bodyFatPercent: undefined, proteinBasis: "bodyweight" },
+    );
 
   return (
     <Card>
@@ -94,6 +106,71 @@ export function PersonalPanel({ profile, update }: PersonalPanelProps) {
           }
           onChange={(targetWeightKg) => update({ targetWeightKg })}
         />
+
+        {/* Optional, advanced: measured body composition */}
+        <div className="rounded-2xl border border-border/70 bg-secondary/30 p-4">
+          <div className="flex items-start justify-between gap-3">
+            <div>
+              <div className="flex items-center gap-1.5 text-sm font-medium">
+                <Sparkles className="h-3.5 w-3.5 text-primary" />
+                Body fat %
+                <span className="rounded-md bg-secondary px-1.5 py-0.5 text-[10px] font-semibold uppercase tracking-wide text-muted-foreground">
+                  Optional
+                </span>
+              </div>
+              <p className="mt-1 text-xs text-muted-foreground">
+                Know it from a scale, calipers or DEXA? Unlocks Katch-McArdle BMR
+                &amp; exact lean mass.
+              </p>
+            </div>
+            <Switch checked={bodyFatOn} onCheckedChange={toggleBodyFat} aria-label="Use measured body fat %" />
+          </div>
+
+          <AnimatePresence initial={false}>
+            {bodyFatOn && (
+              <motion.div
+                initial={{ opacity: 0, height: 0 }}
+                animate={{ opacity: 1, height: "auto" }}
+                exit={{ opacity: 0, height: 0 }}
+                transition={{ duration: 0.22 }}
+                className="overflow-hidden"
+              >
+                <div className="space-y-5 pt-4">
+                  <LabeledSlider
+                    id="body-fat"
+                    label="Measured body fat"
+                    value={profile.bodyFatPercent ?? DEFAULT_BODY_FAT[profile.gender]}
+                    min={INPUT_BOUNDS.bodyFat.min}
+                    max={INPUT_BOUNDS.bodyFat.max}
+                    step={INPUT_BOUNDS.bodyFat.step}
+                    unit="%"
+                    accentVar="--macro-fat"
+                    format={(v) => v.toFixed(1)}
+                    onChange={(bodyFatPercent) => update({ bodyFatPercent })}
+                  />
+                  <Field
+                    label="Protein target basis"
+                    hint={
+                      profile.proteinBasis === "lean-mass"
+                        ? "Anchored to lean body mass (g/kg LBM) — best for lean athletes."
+                        : "Anchored to target bodyweight (g/kg)."
+                    }
+                  >
+                    <Segmented<ProteinBasis>
+                      name="protein-basis"
+                      value={profile.proteinBasis}
+                      onChange={(proteinBasis) => update({ proteinBasis })}
+                      options={[
+                        { value: "bodyweight", label: "Bodyweight" },
+                        { value: "lean-mass", label: "Lean mass" },
+                      ]}
+                    />
+                  </Field>
+                </div>
+              </motion.div>
+            )}
+          </AnimatePresence>
+        </div>
 
         <Field
           label="Ethnicity"

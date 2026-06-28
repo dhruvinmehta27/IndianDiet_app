@@ -81,6 +81,12 @@ export interface GoalConfig {
   proteinPerKg: number;
   /** Allowed protein band, for the manual adjuster. */
   proteinRange: [number, number];
+  /**
+   * Default protein target when anchored to LEAN body mass (g per kg LBM).
+   * Higher than the bodyweight figure because lean mass is the metabolically
+   * active tissue — per Helms et al. ~2.3–3.1 g/kg LBM during a deficit.
+   */
+  proteinPerKgLean: number;
   /** Default fat target (g per kg of target bodyweight). */
   fatPerKg: number;
   fatRange: [number, number];
@@ -104,6 +110,7 @@ export const GOALS: GoalConfig[] = [
     direction: "deficit",
     proteinPerKg: 1.9,
     proteinRange: [1.8, 2.2],
+    proteinPerKgLean: 2.6,
     fatPerKg: 0.7,
     fatRange: [0.6, 1.0],
     defaultWeekly: -0.5,
@@ -115,6 +122,7 @@ export const GOALS: GoalConfig[] = [
     direction: "neutral",
     proteinPerKg: 1.7,
     proteinRange: [1.6, 1.8],
+    proteinPerKgLean: 2.2,
     fatPerKg: 0.8,
     fatRange: [0.6, 1.0],
     defaultWeekly: 0,
@@ -126,6 +134,7 @@ export const GOALS: GoalConfig[] = [
     direction: "surplus",
     proteinPerKg: 1.8,
     proteinRange: [1.6, 2.2],
+    proteinPerKgLean: 2.4,
     fatPerKg: 0.8,
     fatRange: [0.6, 1.0],
     defaultWeekly: 0.25,
@@ -137,6 +146,7 @@ export const GOALS: GoalConfig[] = [
     direction: "surplus",
     proteinPerKg: 2.0,
     proteinRange: [1.8, 2.2],
+    proteinPerKgLean: 2.6,
     fatPerKg: 0.8,
     fatRange: [0.6, 1.0],
     defaultWeekly: 0.5,
@@ -203,7 +213,11 @@ export const INPUT_BOUNDS = {
   age: { min: 15, max: 80, step: 1 },
   height: { min: 140, max: 220, step: 1 },
   weight: { min: 40, max: 180, step: 1 },
+  bodyFat: { min: 4, max: 55, step: 0.5 },
 } as const;
+
+/** Sensible starting body-fat % when the user first enables the input. */
+export const DEFAULT_BODY_FAT = { male: 18, female: 26 } as const;
 
 /** Display metadata for each macro (color token, label, unit). */
 export const MACRO_META: Record<

@@ -24,6 +24,8 @@ export const DEFAULT_PROFILE: UserProfile = {
   goal: "lose-fat",
   diet: "omnivore",
   weeklyTargetKg: -0.5,
+  bodyFatPercent: undefined,
+  proteinBasis: "bodyweight",
 };
 
 const NO_LOCKS: MacroLocks = {

@@ -4,15 +4,22 @@
  * dashboard never disagrees with the macro engine.
  */
 
-import { clamp, round } from "../utils";
-import { calculateBMR, calculateEnergy } from "./engine";
+import { round } from "../utils";
+import {
+  calculateBMR,
+  calculateEnergy,
+  estimateBodyFatPercent,
+  leanBodyMass,
+} from "./engine";
 import type { UserProfile } from "./types";
 
 export interface HealthIndicators {
   bmi: number;
   bmiCategory: string;
   healthyWeightRange: [number, number]; // kg, for current height
-  bodyFatPercent: number; // estimated (Deurenberg)
+  bodyFatPercent: number;
+  /** Whether body fat was measured (user-supplied) or estimated (Deurenberg). */
+  bodyFatMeasured: boolean;
   leanBodyMassKg: number;
   bmr: number;
   tdee: number;
@@ -33,15 +40,6 @@ function bmiCategory(bmi: number): string {
   return "Obese";
 }
 
-/**
- * Deurenberg body-fat estimate from BMI, age and sex:
- *   BF% = 1.20·BMI + 0.23·age − 10.8·sex − 5.4   (sex: male=1, female=0)
- */
-function estimateBodyFat(bmi: number, age: number, isMale: boolean): number {
-  const bf = 1.2 * bmi + 0.23 * age - 10.8 * (isMale ? 1 : 0) - 5.4;
-  return clamp(bf, 3, 60);
-}
-
 export function calculateHealth(
   profile: UserProfile,
   proteinGramsTarget: number,
@@ -52,9 +50,11 @@ export function calculateHealth(
   const healthyLow = round(BMI_NORMAL_LOW * heightM * heightM, 1);
   const healthyHigh = round(BMI_NORMAL_HIGH * heightM * heightM, 1);
 
-  const isMale = profile.gender === "male";
-  const bodyFat = estimateBodyFat(bmi, profile.age, isMale);
-  const leanMass = profile.currentWeightKg * (1 - bodyFat / 100);
+  // Use the measured body-fat % when supplied; otherwise the Deurenberg
+  // estimate. Lean mass derives from whichever we used.
+  const measured = profile.bodyFatPercent != null;
+  const bodyFat = measured ? profile.bodyFatPercent! : estimateBodyFatPercent(profile);
+  const leanMass = leanBodyMass(profile);
 
   const energy = calculateEnergy(profile);
 
@@ -78,6 +78,7 @@ export function calculateHealth(
     bmiCategory: bmiCategory(bmi),
     healthyWeightRange: [healthyLow, healthyHigh],
     bodyFatPercent: round(bodyFat, 1),
+    bodyFatMeasured: measured,
     leanBodyMassKg: round(leanMass, 1),
     bmr: round(calculateBMR(profile)),
     tdee: energy.tdee,
