@@ -1,4 +1,3 @@
-import { memo } from "react";
 import { Cell, Pie, PieChart, ResponsiveContainer } from "recharts";
 import { AnimatedNumber } from "@/components/ui/animated-number";
 import {
@@ -13,7 +12,7 @@ interface MacroDonutProps {
 }
 
 /** Large donut of energy split (protein/carbs/fat) with calories at the core. */
-function MacroDonutBase({ macros }: MacroDonutProps) {
+export function MacroDonut({ macros }: MacroDonutProps) {
   const share = macroEnergyShare(macros);
   const data = [
     { key: "protein", label: "Protein", value: macros.protein * KCAL_PER_GRAM.protein, pct: share.protein },
@@ -37,7 +36,8 @@ function MacroDonutBase({ macros }: MacroDonutProps) {
               paddingAngle={2}
               cornerRadius={8}
               stroke="none"
-              isAnimationActive={false}
+              isAnimationActive
+              animationDuration={500}
             >
               {data.map((d) => (
                 <Cell key={d.key} fill={`hsl(var(${MACRO_META[d.key as keyof typeof MACRO_META].colorVar}))`} />
@@ -79,5 +79,3 @@ function MacroDonutBase({ macros }: MacroDonutProps) {
     </div>
   );
 }
-
-export const MacroDonut = memo(MacroDonutBase);

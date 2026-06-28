@@ -1,4 +1,3 @@
-import { useDeferredValue } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import type { EnergyBreakdown, MacroValues } from "@/lib/nutrition";
 import { MacroDonut } from "./MacroDonut";
@@ -11,10 +10,6 @@ interface ChartsPanelProps {
 }
 
 export function ChartsPanel({ macros, energy }: ChartsPanelProps) {
-  // Charts are the heaviest thing on screen. Render them at a lower priority so
-  // dragging a slider updates the thumb + numbers instantly while the donut and
-  // bar catch up a frame later — keeps the whole UI feeling snappy.
-  const deferredMacros = useDeferredValue(macros);
   return (
     <Card className="glass-strong">
       <CardHeader>
@@ -23,12 +18,12 @@ export function ChartsPanel({ macros, energy }: ChartsPanelProps) {
       <CardContent className="space-y-6">
         <EnergyFlow energy={energy} />
         <div className="grid gap-6 sm:grid-cols-2 sm:items-center">
-          <MacroDonut macros={deferredMacros} />
+          <MacroDonut macros={macros} />
           <div>
             <p className="mb-2 text-xs font-medium uppercase tracking-wide text-muted-foreground">
               Grams per day
             </p>
-            <MacroBar macros={deferredMacros} />
+            <MacroBar macros={macros} />
           </div>
         </div>
         {energy.safetyFloorApplied && (
