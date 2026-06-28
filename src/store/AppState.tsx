@@ -1,6 +1,7 @@
 import { createContext, useContext, type ReactNode } from "react";
 import { useMacroPlanner, type MacroPlanner } from "@/hooks/useMacroPlanner";
 import { useMealLog, type MealLog } from "@/hooks/useMealLog";
+import { useWaterLog, type WaterLog } from "@/hooks/useWaterLog";
 import { useTheme, type Theme } from "@/hooks/useTheme";
 
 /**
@@ -12,6 +13,7 @@ import { useTheme, type Theme } from "@/hooks/useTheme";
 export interface AppStore {
   planner: MacroPlanner;
   mealLog: MealLog;
+  waterLog: WaterLog;
   theme: Theme;
   toggleTheme: () => void;
 }
@@ -21,10 +23,11 @@ const AppStateContext = createContext<AppStore | null>(null);
 export function AppStateProvider({ children }: { children: ReactNode }) {
   const planner = useMacroPlanner();
   const mealLog = useMealLog();
+  const waterLog = useWaterLog();
   const { theme, toggleTheme } = useTheme();
 
   return (
-    <AppStateContext.Provider value={{ planner, mealLog, theme, toggleTheme }}>
+    <AppStateContext.Provider value={{ planner, mealLog, waterLog, theme, toggleTheme }}>
       {children}
     </AppStateContext.Provider>
   );

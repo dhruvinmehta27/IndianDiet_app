@@ -1,24 +1,28 @@
 import { motion } from "framer-motion";
-import { Sparkles, Calculator, Camera, History as HistoryIcon } from "lucide-react";
+import { Sparkles, Calculator, Camera, UtensilsCrossed, Droplets } from "lucide-react";
 import { AppStateProvider, useAppState } from "@/store/AppState";
 import { usePersistentState } from "@/hooks/usePersistentState";
 import { ThemeToggle } from "@/components/ThemeToggle";
 import { CalculatorView } from "@/views/CalculatorView";
 import { ScannerView } from "@/views/ScannerView";
-import { HistoryView } from "@/views/HistoryView";
+import { FoodLogView } from "@/views/FoodLogView";
+import { WaterView } from "@/views/WaterView";
 import { cn } from "@/lib/utils";
 
-type ViewId = "calculator" | "scanner" | "history";
+type ViewId = "calculator" | "scanner" | "foodlog" | "water";
 
 const TABS: { id: ViewId; label: string; short: string; icon: React.ReactNode }[] = [
-  { id: "calculator", label: "Macro Calculator", short: "Calculator", icon: <Calculator className="h-4 w-4" /> },
-  { id: "scanner", label: "AI Calorie Scanner", short: "AI Scanner", icon: <Camera className="h-4 w-4" /> },
-  { id: "history", label: "History", short: "History", icon: <HistoryIcon className="h-4 w-4" /> },
+  { id: "calculator", label: "Calculator", short: "Macros", icon: <Calculator className="h-4 w-4" /> },
+  { id: "scanner", label: "AI Scanner", short: "Scan", icon: <Camera className="h-4 w-4" /> },
+  { id: "foodlog", label: "Food Log", short: "Food", icon: <UtensilsCrossed className="h-4 w-4" /> },
+  { id: "water", label: "Water", short: "Water", icon: <Droplets className="h-4 w-4" /> },
 ];
 
 function Shell() {
   const { theme, toggleTheme, mealLog } = useAppState();
-  const [view, setView] = usePersistentState<ViewId>("dmc-view", "calculator");
+  const [storedView, setView] = usePersistentState<ViewId>("dmc-view", "calculator");
+  // Guard against a stale value (e.g. the removed "history" tab).
+  const view = TABS.some((t) => t.id === storedView) ? storedView : "calculator";
 
   const consumed = Math.round(mealLog.consumedToday.calories);
 
@@ -49,7 +53,7 @@ function Shell() {
         </header>
 
         {/* Navigation */}
-        <nav className="mb-7 grid grid-cols-3 gap-1.5 rounded-2xl bg-secondary/50 p-1.5 sm:inline-grid sm:auto-cols-max sm:grid-flow-col">
+        <nav className="mb-7 grid grid-cols-4 gap-1.5 rounded-2xl bg-secondary/50 p-1.5 sm:inline-grid sm:auto-cols-max sm:grid-flow-col">
           {TABS.map((tab) => {
             const active = view === tab.id;
             return (
@@ -80,7 +84,8 @@ function Shell() {
         {/* Active view */}
         {view === "calculator" && <CalculatorView />}
         {view === "scanner" && <ScannerView />}
-        {view === "history" && <HistoryView />}
+        {view === "foodlog" && <FoodLogView />}
+        {view === "water" && <WaterView />}
 
         <footer className="mt-10 border-t border-border/60 pt-6 text-center text-xs text-muted-foreground">
           Built on Mifflin-St Jeor / Katch-McArdle BMR, ISSN protein guidance &amp; Atwater factors.

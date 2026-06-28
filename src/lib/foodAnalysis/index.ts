@@ -9,6 +9,23 @@ export { RemoteVisionProvider, ANALYSIS_PROMPT } from "./providers/remoteVision"
 
 import type { Nutrition } from "./types";
 
+/** Scale a per-100g nutrition vector to an arbitrary portion (grams). */
+export function nutritionFromPer100g(per100g: Nutrition, grams: number): Nutrition {
+  return nutritionForGrams(
+    {
+      calories: per100g.calories / 100,
+      protein: per100g.protein / 100,
+      carbs: per100g.carbs / 100,
+      fat: per100g.fat / 100,
+      fiber: per100g.fiber / 100,
+      sugar: per100g.sugar / 100,
+      sodium: per100g.sodium / 100,
+      potassium: per100g.potassium / 100,
+    },
+    grams,
+  );
+}
+
 /** Scale a result's per-gram nutrition to an arbitrary portion (grams). */
 export function nutritionForGrams(perGram: Nutrition, grams: number): Nutrition {
   return {
