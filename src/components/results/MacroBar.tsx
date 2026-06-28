@@ -1,3 +1,4 @@
+import { memo } from "react";
 import {
   Bar,
   BarChart,
@@ -16,7 +17,7 @@ interface MacroBarProps {
 const KEYS: MacroKey[] = ["protein", "carbs", "fat", "fiber"];
 
 /** Grams-per-macro bar chart (protein, carbs, fat, fiber). */
-export function MacroBar({ macros }: MacroBarProps) {
+function MacroBarBase({ macros }: MacroBarProps) {
   const data = KEYS.map((k) => ({
     key: k,
     label: MACRO_META[k].label,
@@ -34,7 +35,7 @@ export function MacroBar({ macros }: MacroBarProps) {
             tick={{ fill: "hsl(var(--muted-foreground))", fontSize: 12 }}
           />
           <YAxis hide domain={[0, "dataMax + 40"]} />
-          <Bar dataKey="grams" radius={[8, 8, 8, 8]} isAnimationActive animationDuration={450}>
+          <Bar dataKey="grams" radius={[8, 8, 8, 8]} isAnimationActive={false}>
             {data.map((d) => (
               <Cell key={d.key} fill={`hsl(var(${MACRO_META[d.key].colorVar}))`} />
             ))}
@@ -50,3 +51,5 @@ export function MacroBar({ macros }: MacroBarProps) {
     </div>
   );
 }
+
+export const MacroBar = memo(MacroBarBase);
