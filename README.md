@@ -52,10 +52,24 @@ without touching components:
 - The same seam is ready for USDA FoodData Central, OpenFoodFacts, Nutritionix
   and Edamam.
 
+## Install as an app (PWA)
+
+The app is an installable Progressive Web App with offline support, so it runs
+full-screen like a native app — no App Store needed.
+
+- **iPhone / iPad (Safari):** open the site → **Share** → **Add to Home Screen**.
+  It launches full-screen with its own icon and a dark status bar.
+- **Android (Chrome):** open the site → **⋮** → **Install app** (or the install prompt).
+- **Desktop (Chrome/Edge):** click the **install** icon in the address bar.
+
+A service worker precaches the app shell (via `vite-plugin-pwa` + Workbox), so it
+opens instantly and works offline; your data already lives on-device in
+`localStorage`.
+
 ## Tech stack
 
 React · TypeScript · Tailwind CSS · shadcn/ui-style Radix primitives ·
-Framer Motion · Recharts · Vite.
+Framer Motion · Recharts · Vite · vite-plugin-pwa.
 
 ## Architecture
 
